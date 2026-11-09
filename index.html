@@ -108,10 +108,48 @@ function paint() {
 
   raf = requestAnimationFrame(paint);
 }
-function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
+async function openCamera() {
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error('Câmera indisponível. Abra pelo HTTPS.');
+    }
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+
+    statusEl.textContent = 'Solicitando acesso à câmera...';
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: {
+        facingMode: { ideal: facing },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    });
+
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+
+    await video.play();
+
+    cancelAnimationFrame(raf);
+    paint();
+
+    statusEl.textContent = 'Câmera pronta!';
+
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent =
+      'Não foi possível abrir a câmera. Verifique as permissões do navegador.';
+  }
+}function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
 capture.onclick=()=>{
   drawCameraFit(ctx);
-  ctx.drawImage(frame,0,0,1080,1920);ctx.drawImage(frame,0,0,1080,1920);render.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);download.href=url;download.download='princesa-laura.png';download.style.display='inline-block';statusEl.textContent='Foto pronta! Toque em “Baixar foto”.'},'image/png');};
+  ctx.drawImage(frame,0,0,1080,1920);render.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);download.href=url;download.download='princesa-laura.png';download.style.display='inline-block';statusEl.textContent='Foto pronta! Toque em “Baixar foto”.'},'image/png');};
 start.onclick=()=>{
  try{
   const canvasStream=render.captureStream(30);
