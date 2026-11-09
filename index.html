@@ -71,8 +71,6 @@ const capture=document.querySelector('#capture'), start=document.querySelector('
 const statusEl=document.querySelector('#status'), download=document.querySelector('#download'), downloadVideo=document.querySelector('#downloadVideo');
 const frame=new Image(); frame.src='assets/laura-filtro-ok.png';
 let stream=null, facing='user', recorder=null, chunks=[], mode='photo', raf=0, recordedUrl=null;
-function drawCameraFit(targetCtx) {
-  if (!video.videoWidth || !video.videoHeight) return;
 
   function drawCameraFit(targetCtx) {
   if (!video.videoWidth || !video.videoHeight) return;
