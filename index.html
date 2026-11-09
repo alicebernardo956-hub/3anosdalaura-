@@ -161,7 +161,7 @@ async function openCamera() {
     }
   }
 }
-}function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
+function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
 capture.onclick=()=>{
   drawCameraFit(ctx);
   ctx.drawImage(frame,0,0,1080,1920);render.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);download.href=url;download.download='princesa-laura.png';download.style.display='inline-block';statusEl.textContent='Foto pronta! Toque em “Baixar foto”.'},'image/png');};
