@@ -135,6 +135,16 @@ async function openCamera() {
     height: { ideal: 1280 }
   }
 });
+    const videoTrack = stream.getVideoTracks()[0];
+const capabilities = videoTrack.getCapabilities();
+
+if (capabilities.zoom &&
+    capabilities.zoom.min <= 1 &&
+    capabilities.zoom.max >= 1) {
+  await videoTrack.applyConstraints({
+    advanced: [{ zoom: 1 }]
+  });
+}
 
     video.srcObject = stream;
     video.muted = true;
