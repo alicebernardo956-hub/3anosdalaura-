@@ -136,14 +136,21 @@ async function openCamera() {
   }
 });
     const videoTrack = stream.getVideoTracks()[0];
-const capabilities = videoTrack.getCapabilities();
 
-if (capabilities.zoom &&
+try {
+  const capabilities = videoTrack.getCapabilities?.();
+
+  if (
+    capabilities?.zoom &&
     capabilities.zoom.min <= 1 &&
-    capabilities.zoom.max >= 1) {
-  await videoTrack.applyConstraints({
-    advanced: [{ zoom: 1 }]
-  });
+    capabilities.zoom.max >= 1
+  ) {
+    await videoTrack.applyConstraints({
+      advanced: [{ zoom: 1 }]
+    });
+  }
+} catch (zoomError) {
+  console.warn('Não foi possível ajustar o zoom:', zoomError);
 }
 
     video.srcObject = stream;
