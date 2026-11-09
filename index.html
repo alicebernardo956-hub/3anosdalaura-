@@ -14,7 +14,14 @@ header{text-align:center;padding:8px 0 14px}
 header h1{font-family:Georgia,serif;font-size:clamp(25px,7vw,36px);margin:0;color:#ffe9a8;text-shadow:0 2px 8px #102a1e}
 header p{margin:5px 0 0;font-size:13px;opacity:.9}
 .stage{position:relative;width:100%;aspect-ratio:9/16;background:#101713;border:3px solid rgba(255,239,190,.8);border-radius:22px;overflow:hidden;box-shadow:0 14px 38px #07190f80}
-video#camera{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+video#camera{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#132b20;
+  display:block;
+  transform:scaleX(-1);
+}
 canvas#overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 canvas#render{display:none}
 .controls{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:9px;margin:14px 0}
@@ -64,17 +71,47 @@ const capture=document.querySelector('#capture'), start=document.querySelector('
 const statusEl=document.querySelector('#status'), download=document.querySelector('#download'), downloadVideo=document.querySelector('#downloadVideo');
 const frame=new Image(); frame.src='assets/moldura-laura.png';
 let stream=null, facing='user', recorder=null, chunks=[], mode='photo', raf=0, recordedUrl=null;
-function paint(){ if(video.videoWidth){ctx.save(); if(facing==='user'){ctx.translate(1080,0);ctx.scale(-1,1);} ctx.drawImage(video,0,0,1080,1920);ctx.restore();ctx.drawImage(frame,0,0,1080,1920);octx.clearRect(0,0,1080,1920);octx.drawImage(frame,0,0,1080,1920);} raf=requestAnimationFrame(paint); }
-async function openCamera(){
- try{
-  if(stream) stream.getTracks().forEach(t=>t.stop());
-  stream=await navigator.mediaDevices.getUserMedia({audio:true,video:{facingMode:facing,width:{ideal:1080},height:{ideal:1920}}});
-  video.srcObject=stream; await video.play(); cancelAnimationFrame(raf); paint();
-  statusEl.textContent='Câmera pronta! Escolha FOTO ou VÍDEO.';
- }catch(e){statusEl.textContent='Não foi possível abrir a câmera. Verifique a permissão do navegador e tente novamente.';}
+function drawCameraFit(targetCtx) {
+  if (!video.videoWidth || !video.videoHeight) return;
+
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+
+  const scale = Math.min(1080 / vw, 1920 / vh);
+  const dw = vw * scale;
+  const dh = vh * scale;
+
+  const dx = (1080 - dw) / 2;
+  const dy = (1920 - dh) / 2;
+
+  targetCtx.save();
+  targetCtx.fillStyle = '#132b20';
+  targetCtx.fillRect(0, 0, 1080, 1920);
+
+  if (facing === 'user') {
+    targetCtx.translate(1080, 0);
+    targetCtx.scale(-1, 1);
+  }
+
+  targetCtx.drawImage(video, dx, dy, dw, dh);
+  targetCtx.restore();
+}
+
+function paint() {
+  if (video.videoWidth) {
+    drawCameraFit(ctx);
+    ctx.drawImage(frame, 0, 0, 1080, 1920);
+
+    octx.clearRect(0, 0, 1080, 1920);
+    octx.drawImage(frame, 0, 0, 1080, 1920);
+  }
+
+  raf = requestAnimationFrame(paint);
 }
 function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
-capture.onclick=()=>{ctx.drawImage(video,0,0,1080,1920);ctx.drawImage(frame,0,0,1080,1920);render.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);download.href=url;download.download='princesa-laura.png';download.style.display='inline-block';statusEl.textContent='Foto pronta! Toque em “Baixar foto”.'},'image/png');};
+capture.onclick=()=>{
+  drawCameraFit(ctx);
+  ctx.drawImage(frame,0,0,1080,1920);ctx.drawImage(frame,0,0,1080,1920);render.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);download.href=url;download.download='princesa-laura.png';download.style.display='inline-block';statusEl.textContent='Foto pronta! Toque em “Baixar foto”.'},'image/png');};
 start.onclick=()=>{
  try{
   const canvasStream=render.captureStream(30);
