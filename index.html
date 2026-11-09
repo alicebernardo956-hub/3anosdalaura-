@@ -1,209 +1,838 @@
+
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#173c2b">
-<title>Princesa Laura • 3 anos</title>
-<style>
-:root{--green:#174a35;--pink:#d83d79;--gold:#f5d889}
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(160deg,#143d2c,#315b3e 55%,#f4d6df);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff;min-height:100svh}
-main{max-width:560px;margin:auto;padding:16px 14px 28px}
-header{text-align:center;padding:8px 0 14px}
-header h1{font-family:Georgia,serif;font-size:clamp(25px,7vw,36px);margin:0;color:#ffe9a8;text-shadow:0 2px 8px #102a1e}
-header p{margin:5px 0 0;font-size:13px;opacity:.9}
-.stage{position:relative;width:100%;aspect-ratio:9/16;background:#101713;border:3px solid rgba(255,239,190,.8);border-radius:22px;overflow:hidden;box-shadow:0 14px 38px #07190f80}
-video#camera{
-  width:100%;
-  height:100%;
-  object-fit: contain;
-  background:#132b20;
-  display:block;
-  transform:scaleX(-1);
-}
-canvas#overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-canvas#render{display:none}
-.controls{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:9px;margin:14px 0}
-button,.download{border:0;border-radius:999px;padding:13px 10px;font-weight:750;font-size:14px;cursor:pointer}
-button{background:#fff4d5;color:#23432e}
-button.primary{background:var(--pink);color:white;box-shadow:0 4px 0 #9b2854}
-button:disabled{opacity:.45;cursor:not-allowed}
-.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.download{display:none;background:#f7d985;color:#273b2c;text-decoration:none;text-align:center}
-.note{text-align:center;font-size:12px;line-height:1.5;opacity:.88;margin:12px auto;max-width:420px}
-#status{text-align:center;font-size:13px;min-height:20px;margin:8px 0}
-.mode{display:flex;justify-content:center;gap:8px;margin-bottom:10px}
-.mode button{padding:8px 18px;background:#ffffff25;color:white;border:1px solid #ffffff55}
-.mode button.active{background:#fff4d5;color:#23432e}
-@media(max-width:380px){.controls{gap:6px}button{font-size:12px;padding:12px 6px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173c2b">
+
+  <title>Princesa Laura • 3 anos</title>
+
+  <style>
+    :root {
+      --green: #174a35;
+      --pink: #d83d79;
+      --gold: #f5d889;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      background: linear-gradient(
+        160deg,
+        #143d2c,
+        #315b3e 55%,
+        #f4d6df
+      );
+      font-family: system-ui, -apple-system,
+                   Segoe UI, sans-serif;
+      color: white;
+    }
+
+    main {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 12px 14px 28px;
+    }
+
+    header {
+      text-align: center;
+      padding: 6px 0 10px;
+    }
+
+    header h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(25px, 7vw, 36px);
+      margin: 0;
+      color: #ffe9a8;
+      text-shadow: 0 2px 8px #102a1e;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    .mode {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mode button {
+      padding: 8px 18px;
+      background: #ffffff25;
+      color: white;
+      border: 1px solid #ffffff55;
+    }
+
+    .mode button.active {
+      background: #fff4d5;
+      color: #23432e;
+    }
+
+    /* Área vertical da câmera */
+
+    .stage {
+      position: relative;
+      width: min(
+        100%,
+        420px,
+        calc(72svh * 9 / 16)
+      );
+      aspect-ratio: 9 / 16;
+      margin: 0 auto;
+      background: #132b20;
+      border: 3px solid rgba(255,239,190,.8);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 14px 38px #07190f80;
+    }
+
+    video#camera {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      background: #132b20;
+    }
+
+    canvas#overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    canvas#render {
+      display: none;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      margin: 14px auto;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .download {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 15px;
+      font-weight: 750;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button {
+      background: #fff4d5;
+      color: #23432e;
+    }
+
+    button.primary {
+      background: var(--pink);
+      color: white;
+      box-shadow: 0 4px 0 #9b2854;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .download {
+      display: none;
+      background: #f7d985;
+      color: #273b2c;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .note {
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: .88;
+      margin: 12px auto;
+      max-width: 420px;
+    }
+
+    #status {
+      text-align: center;
+      font-size: 13px;
+      min-height: 20px;
+      margin: 8px 0;
+    }
+
+    @media (max-width: 380px) {
+      .controls {
+        gap: 6px;
+      }
+
+      button {
+        font-size: 12px;
+        padding: 12px 9px;
+      }
+    }
+  </style>
 </head>
+
 <body>
+
 <main>
-<header><h1>Princesa Laura</h1><p>Uma lembrança mágica dos meus 3 aninhos</p></header>
-<div class="mode">
-<button id="photoMode" class="active" type="button">FOTO</button>
-<button id="videoMode" type="button">VÍDEO</button>
-</div>
-<div class="stage">
-<video id="camera" autoplay playsinline muted></video>
-<canvas id="overlay" width="1080" height="1920"></canvas>
-</div>
-<canvas id="render" width="1080" height="1920"></canvas>
-<div class="controls">
-<button id="switch" type="button">Virar câmera</button>
-<button id="capture" class="primary" type="button">Tirar foto</button>
-<button id="start" type="button" style="display:none">Gravar</button>
-<button id="stop" type="button" style="display:none" disabled>Parar</button>
-</div>
-<div class="actions">
-<a id="download" class="download" download="princesa-laura.png">Baixar foto</a>
-<a id="downloadVideo" class="download" download="princesa-laura.webm">Baixar vídeo</a>
-</div>
-<div id="status">Toque em “Permitir” quando o navegador pedir acesso à câmera.</div>
-<p class="note">A moldura é aplicada em tempo real. Tire sua foto ou grave um vídeo e baixe o resultado para compartilhar. Para funcionar, abra este link em um navegador com câmera e conexão segura (HTTPS).</p>
+
+  <header>
+    <h1>Princesa Laura</h1>
+    <p>Uma lembrança mágica dos meus 3 aninhos</p>
+  </header>
+
+  <div class="mode">
+    <button id="photoMode"
+            class="active"
+            type="button">
+      FOTO
+    </button>
+
+    <button id="videoMode" type="button">
+      VÍDEO
+    </button>
+  </div>
+
+  <div class="stage">
+    <video
+      id="camera"
+      autoplay
+      playsinline
+      muted>
+    </video>
+
+    <canvas
+      id="overlay"
+      width="1080"
+      height="1920">
+    </canvas>
+  </div>
+
+  <canvas
+    id="render"
+    width="1080"
+    height="1920">
+  </canvas>
+
+  <div class="controls">
+
+    <button id="switch" type="button">
+      Virar câmera
+    </button>
+
+    <button id="capture"
+            class="primary"
+            type="button">
+      Tirar foto
+    </button>
+
+    <button id="start"
+            class="primary"
+            type="button"
+            style="display:none">
+      Gravar
+    </button>
+
+    <button id="stop"
+            type="button"
+            style="display:none"
+            disabled>
+      Parar
+    </button>
+
+  </div>
+
+  <div class="actions">
+
+    <a id="download"
+       class="download"
+       download="princesa-laura.png">
+      Baixar foto
+    </a>
+
+    <a id="downloadVideo"
+       class="download"
+       download="princesa-laura.webm">
+      Baixar vídeo
+    </a>
+
+  </div>
+
+  <div id="status">
+    Toque em Permitir para acessar a câmera.
+  </div>
+
+  <p class="note">
+    Tire sua foto ou grave um vídeo com a moldura
+    da Princesa Laura. Depois, baixe para compartilhar.
+  </p>
+
 </main>
+
 <script>
-const video=document.querySelector('#camera'), overlay=document.querySelector('#overlay'), render=document.querySelector('#render');
-const octx=overlay.getContext('2d'), ctx=render.getContext('2d');
-const capture=document.querySelector('#capture'), start=document.querySelector('#start'), stop=document.querySelector('#stop');
-const statusEl=document.querySelector('#status'), download=document.querySelector('#download'), downloadVideo=document.querySelector('#downloadVideo');
-const frame=new Image(); frame.src='assets/laura-filtro-ok.png';
-let stream=null, facing='user', recorder=null, chunks=[], mode='photo', raf=0, recordedUrl=null;
+  const video = document.querySelector('#camera');
+  const overlay = document.querySelector('#overlay');
+  const render = document.querySelector('#render');
+
+  const octx = overlay.getContext('2d');
+  const ctx = render.getContext('2d');
+
+  const capture = document.querySelector('#capture');
+  const start = document.querySelector('#start');
+  const stop = document.querySelector('#stop');
+
+  const switchButton = document.querySelector('#switch');
+  const statusEl = document.querySelector('#status');
+
+  const download = document.querySelector('#download');
+  const downloadVideo = document.querySelector('#downloadVideo');
+
+  const frame = new Image();
+  frame.src = 'assets/laura-filtro-ok.png';
+
+  const WIDTH = 1080;
+  const HEIGHT = 1920;
+
+  let stream = null;
+  let facing = 'user';
+  let recorder = null;
+  let chunks = [];
+  let mode = 'photo';
+  let raf = 0;
+  let recordedUrl = null;
+  let photoUrl = null;
+  let openingCamera = false;
+
+  let frameReady = false;
+
+  frame.onload = () => {
+    frameReady = true;
+    drawOverlay();
+  };
+
+  frame.onerror = () => {
+    frameReady = false;
+    statusEl.textContent =
+      'Não foi possível carregar a moldura. Verifique o arquivo PNG.';
+  };
+
+  function drawOverlay() {
+    octx.clearRect(0, 0, WIDTH, HEIGHT);
+
+    if (frameReady) {
+      octx.drawImage(frame, 0, 0, WIDTH, HEIGHT);
+    }
+  }
+
+  /*
+   * Desenha a câmera em formato vertical.
+   * Preserva a proporção original.
+   * Recorta apenas o necessário para preencher 9:16.
+   */
 
   function drawCameraFit(targetCtx) {
-  if (!video.videoWidth || !video.videoHeight) return;
+    if (!video.videoWidth || !video.videoHeight) {
+      return;
+    }
 
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
 
-  const scale = Math.min(1080 / vw, 1920 / vh);
+    const scale = Math.max(
+      WIDTH / vw,
+      HEIGHT / vh
+    );
 
-  const dw = vw * scale;
-  const dh = vh * scale;
+    const dw = vw * scale;
+    const dh = vh * scale;
 
-  const dx = (1080 - dw) / 2;
-  const dy = (1920 - dh) / 2;
+    const dx = (WIDTH - dw) / 2;
+    const dy = (HEIGHT - dh) / 2;
 
-  targetCtx.save();
+    targetCtx.save();
 
-  targetCtx.fillStyle = '#132b20';
-  targetCtx.fillRect(0, 0, 1080, 1920);
+    targetCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
-  if (facing === 'user') {
-    targetCtx.translate(1080, 0);
-    targetCtx.scale(-1, 1);
+    targetCtx.fillStyle = '#132b20';
+    targetCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+    if (facing === 'user') {
+      targetCtx.translate(WIDTH, 0);
+      targetCtx.scale(-1, 1);
+    }
+
+    targetCtx.drawImage(
+      video,
+      dx,
+      dy,
+      dw,
+      dh
+    );
+
+    targetCtx.restore();
   }
 
-  targetCtx.drawImage(video, dx, dy, dw, dh);
+  /*
+   * Atualiza o canvas usado para fotos e vídeos.
+   */
 
-  targetCtx.restore();
-}
-function paint() {
-  if (video.videoWidth) {
+  function paint() {
+    if (video.readyState >= 2) {
+      drawCameraFit(ctx);
+
+      if (frameReady) {
+        ctx.drawImage(
+          frame,
+          0,
+          0,
+          WIDTH,
+          HEIGHT
+        );
+      }
+    }
+
+    raf = requestAnimationFrame(paint);
+  }
+
+  /*
+   * Abre a câmera.
+   */
+
+  async function openCamera() {
+    if (openingCamera) return;
+
+    openingCamera = true;
+    switchButton.disabled = true;
+
+    try {
+      statusEl.textContent = 'Abrindo câmera...';
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error(
+          'Abra a página em HTTPS e use um navegador atualizado.'
+        );
+      }
+
+      cancelAnimationFrame(raf);
+
+      video.pause();
+      video.srcObject = null;
+
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      /*
+       * Prioriza câmera vertical.
+       * As dimensões são preferenciais.
+       */
+
+      const constraints = {
+        audio: false,
+        video: {
+          facingMode: { ideal: facing },
+          width: { ideal: 1080 },
+          height: { ideal: 1920 },
+          aspectRatio: { ideal: 9 / 16 },
+          resizeMode: 'none'
+        }
+      };
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        );
+      } catch (firstError) {
+        /*
+         * Tenta novamente com restrições mais simples.
+         */
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: facing }
+          }
+        });
+      }
+
+      const track = stream.getVideoTracks()[0];
+
+      /*
+       * Solicita zoom neutro quando suportado.
+       */
+
+      try {
+        const capabilities = track.getCapabilities?.();
+
+        if (
+          capabilities?.zoom &&
+          capabilities.zoom.min <= 1 &&
+          capabilities.zoom.max >= 1
+        ) {
+          await track.applyConstraints({
+            advanced: [{ zoom: 1 }]
+          });
+        }
+      } catch (zoomError) {
+        console.warn(
+          'Zoom não ajustável:',
+          zoomError
+        );
+      }
+
+      video.srcObject = stream;
+      video.muted = true;
+      video.autoplay = true;
+      video.playsInline = true;
+
+      await video.play();
+
+      /*
+       * Espelha somente a câmera frontal.
+       */
+
+      video.style.transform =
+        facing === 'user'
+          ? 'scaleX(-1)'
+          : 'none';
+
+      const settings = track.getSettings();
+
+      console.log('Configurações da câmera:', settings);
+      console.log(
+        'Resolução recebida:',
+        video.videoWidth,
+        video.videoHeight
+      );
+
+      paint();
+
+      statusEl.textContent = 'Câmera pronta!';
+
+    } catch (error) {
+      console.error('Erro da câmera:', error);
+
+      if (error.name === 'NotAllowedError') {
+        statusEl.textContent =
+          'Acesso bloqueado. Libere a câmera nas permissões do navegador.';
+      } else if (error.name === 'NotFoundError') {
+        statusEl.textContent =
+          'Nenhuma câmera foi encontrada.';
+      } else if (error.name === 'NotReadableError') {
+        statusEl.textContent =
+          'A câmera está sendo utilizada por outro aplicativo.';
+      } else {
+        statusEl.textContent =
+          'Erro ao abrir câmera: ' + error.message;
+      }
+    } finally {
+      openingCamera = false;
+      switchButton.disabled = false;
+    }
+  }
+
+  /*
+   * Alterna entre foto e vídeo.
+   */
+
+  function setMode(m) {
+    if (recorder && recorder.state !== 'inactive') {
+      return;
+    }
+
+    mode = m;
+
+    document.querySelector('#photoMode')
+      .classList.toggle('active', m === 'photo');
+
+    document.querySelector('#videoMode')
+      .classList.toggle('active', m === 'video');
+
+    capture.style.display =
+      m === 'photo' ? 'block' : 'none';
+
+    start.style.display =
+      m === 'video' ? 'block' : 'none';
+
+    stop.style.display =
+      m === 'video' ? 'block' : 'none';
+
+    download.style.display = 'none';
+    downloadVideo.style.display = 'none';
+  }
+
+  /*
+   * Captura foto com a moldura.
+   */
+
+  capture.onclick = () => {
+    if (!stream || video.readyState < 2) {
+      statusEl.textContent =
+        'Aguarde a câmera ficar pronta.';
+      return;
+    }
+
+    if (!frameReady) {
+      statusEl.textContent =
+        'Aguarde a moldura carregar.';
+      return;
+    }
+
     drawCameraFit(ctx);
-    ctx.drawImage(frame, 0, 0, 1080, 1920);
 
-    octx.clearRect(0, 0, 1080, 1920);
-    octx.drawImage(frame, 0, 0, 1080, 1920);
-  }
+    ctx.drawImage(
+      frame,
+      0,
+      0,
+      WIDTH,
+      HEIGHT
+    );
 
-  raf = requestAnimationFrame(paint);
-}
-async function openCamera() {
-  try {
-    statusEl.textContent = 'Abrindo câmera...';
+    render.toBlob(blob => {
+      if (!blob) {
+        statusEl.textContent =
+          'Não foi possível gerar a foto.';
+        return;
+      }
 
-    if (!navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia) {
-      throw new Error('HTTPS');
+      if (photoUrl) {
+        URL.revokeObjectURL(photoUrl);
+      }
+
+      photoUrl = URL.createObjectURL(blob);
+
+      download.href = photoUrl;
+      download.download = 'princesa-laura.png';
+      download.style.display = 'inline-block';
+
+      statusEl.textContent =
+        'Foto pronta! Toque em Baixar foto.';
+
+    }, 'image/png');
+  };
+
+  /*
+   * Escolhe formato de vídeo compatível.
+   */
+
+  function getSupportedMime() {
+    if (typeof MediaRecorder === 'undefined') {
+      return null;
     }
 
+    const types = [
+      'video/mp4;codecs=avc1.42E01E',
+      'video/mp4',
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm'
+    ];
+
+    return types.find(type =>
+      MediaRecorder.isTypeSupported(type)
+    ) || '';
+  }
+
+  /*
+   * Inicia gravação.
+   */
+
+  start.onclick = () => {
+    try {
+      if (!stream || video.readyState < 2) {
+        statusEl.textContent =
+          'Aguarde a câmera ficar pronta.';
+        return;
+      }
+
+      if (!frameReady) {
+        statusEl.textContent =
+          'Aguarde a moldura carregar.';
+        return;
+      }
+
+      if (
+        typeof MediaRecorder === 'undefined' ||
+        typeof render.captureStream !== 'function'
+      ) {
+        throw new Error('Gravação não suportada');
+      }
+
+      const canvasStream = render.captureStream(30);
+
+      const mime = getSupportedMime();
+
+      const options = mime
+        ? { mimeType: mime }
+        : undefined;
+
+      recorder = new MediaRecorder(
+        canvasStream,
+        options
+      );
+
+      chunks = [];
+
+      recorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onerror = event => {
+        console.error('Erro de gravação:', event);
+        statusEl.textContent =
+          'Ocorreu um erro durante a gravação.';
+      };
+
+      recorder.onstop = () => {
+        const actualType = recorder.mimeType || 'video/webm';
+
+        const extension =
+          actualType.includes('mp4') ? 'mp4' : 'webm';
+
+        const blob = new Blob(chunks, {
+          type: actualType
+        });
+
+        if (recordedUrl) {
+          URL.revokeObjectURL(recordedUrl);
+        }
+
+        recordedUrl = URL.createObjectURL(blob);
+
+        downloadVideo.href = recordedUrl;
+        downloadVideo.download =
+          'princesa-laura.' + extension;
+
+        downloadVideo.style.display = 'inline-block';
+
+        start.disabled = false;
+        stop.disabled = true;
+        switchButton.disabled = false;
+
+        canvasStream.getTracks().forEach(
+          track => track.stop()
+        );
+
+        statusEl.textContent =
+          'Vídeo pronto! Toque em Baixar vídeo.';
+      };
+
+      recorder.start(1000);
+
+      start.disabled = true;
+      stop.disabled = false;
+      switchButton.disabled = true;
+
+      downloadVideo.style.display = 'none';
+
+      statusEl.textContent = 'Gravando vídeo...';
+
+    } catch (error) {
+      console.error('Erro ao gravar:', error);
+
+      statusEl.textContent =
+        'Este navegador não oferece gravação compatível.';
+    }
+  };
+
+  /*
+   * Para gravação.
+   */
+
+  stop.onclick = () => {
+    if (
+      recorder &&
+      recorder.state !== 'inactive'
+    ) {
+      recorder.stop();
+      stop.disabled = true;
+      statusEl.textContent =
+        'Finalizando vídeo...';
+    }
+  };
+
+  /*
+   * Alterna câmera frontal e traseira.
+   */
+
+  switchButton.onclick = async () => {
+    if (
+      recorder &&
+      recorder.state !== 'inactive'
+    ) {
+      return;
+    }
+
+    facing =
+      facing === 'user'
+        ? 'environment'
+        : 'user';
+
+    await openCamera();
+  };
+
+  document.querySelector('#photoMode').onclick =
+    () => setMode('photo');
+
+  document.querySelector('#videoMode').onclick =
+    () => setMode('video');
+
+  /*
+   * Inicialização.
+   */
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    statusEl.textContent =
+      'Abra esta página em HTTPS para usar a câmera.';
+  } else {
+    openCamera();
+  }
+
+  /*
+   * Libera a câmera quando a página é encerrada.
+   */
+
+  window.addEventListener('pagehide', () => {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      stream = null;
+      stream.getTracks().forEach(
+        track => track.stop()
+      );
     }
-
-    // Solicita somente a câmera, sem exigir microfone
-    stream = await navigator.mediaDevices.getUserMedia({
-  audio: false,
-  video: {
-    facingMode: { ideal: facing },
-    aspectRatio: { ideal: 9 / 16 },
-    width: { ideal: 720 },
-    height: { ideal: 1280 }
-  }
-});
-    const videoTrack = stream.getVideoTracks()[0];
-
-try {
-  const capabilities = videoTrack.getCapabilities?.();
-
-  if (
-    capabilities?.zoom &&
-    capabilities.zoom.min <= 1 &&
-    capabilities.zoom.max >= 1
-  ) {
-    await videoTrack.applyConstraints({
-      advanced: [{ zoom: 1 }]
-    });
-  }
-} catch (zoomError) {
-  console.warn('Não foi possível ajustar o zoom:', zoomError);
-}
-
-    video.srcObject = stream;
-    video.muted = true;
-    video.autoplay = true;
-    video.playsInline = true;
-
-    await video.play();
-    statusEl.textContent = 'Câmera: ' + video.videoWidth + ' × ' + video.videoHeight;
 
     cancelAnimationFrame(raf);
-    paint();
+  });
 
-    statusEl.textContent = 'Câmera pronta!';
-
-  } catch (error) {
-    console.error('Erro da câmera:', error);
-
-    if (error.name === 'NotAllowedError') {
-      statusEl.textContent =
-        'Acesso bloqueado. Libere a câmera nas permissões do navegador.';
-    } else if (error.name === 'NotFoundError') {
-      statusEl.textContent = 'Nenhuma câmera foi encontrada.';
-    } else if (error.name === 'NotReadableError') {
-      statusEl.textContent =
-        'A câmera está sendo utilizada por outro aplicativo.';
-    } else {
-      statusEl.textContent =
-        'Erro ao abrir câmera: ' + error.message;
-    }
-  }
-}
-function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
-capture.onclick=()=>{
-  drawCameraFit(ctx);
-  ctx.drawImage(frame,0,0,1080,1920);render.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);download.href=url;download.download='princesa-laura.png';download.style.display='inline-block';statusEl.textContent='Foto pronta! Toque em “Baixar foto”.'},'image/png');};
-start.onclick=()=>{
- try{
-  const canvasStream=render.captureStream(30);
-  stream.getAudioTracks().forEach(t=>canvasStream.addTrack(t));
-  const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
-  recorder=new MediaRecorder(canvasStream,mime?{mimeType:mime}:undefined);chunks=[];
-  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-  recorder.onstop=()=>{const blob=new Blob(chunks,{type:recorder.mimeType||'video/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(blob);downloadVideo.href=recordedUrl;downloadVideo.download='princesa-laura.webm';downloadVideo.style.display='inline-block';statusEl.textContent='Vídeo pronto! Toque em “Baixar vídeo”.';};
-  recorder.start();start.disabled=true;stop.disabled=false;statusEl.textContent='Gravando…';
- }catch(e){statusEl.textContent='Este navegador não oferece gravação de vídeo compatível.';}
-};
-stop.onclick=()=>{if(recorder&&recorder.state!=='inactive'){recorder.stop();start.disabled=false;stop.disabled=true;}};
-document.querySelector('#switch').onclick=()=>{facing=facing==='user'?'environment':'user';openCamera();};
-document.querySelector('#photoMode').onclick=()=>setMode('photo');
-document.querySelector('#videoMode').onclick=()=>setMode('video');
-frame.onload=()=>{octx.drawImage(frame,0,0,1080,1920);};
-if(!navigator.mediaDevices?.getUserMedia){statusEl.textContent='Abra esta página em HTTPS e em um navegador atualizado para usar a câmera.';}
-else openCamera();
 </script>
-</body></html>
+
+</body>
+</html>
