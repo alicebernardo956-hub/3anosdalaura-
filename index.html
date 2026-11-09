@@ -74,17 +74,15 @@ let stream=null, facing='user', recorder=null, chunks=[], mode='photo', raf=0, r
 function drawCameraFit(targetCtx) {
   if (!video.videoWidth || !video.videoHeight) return;
 
+  function drawCameraFit(targetCtx) {
+  if (!video.videoWidth || !video.videoHeight) return;
+
   const vw = video.videoWidth;
   const vh = video.videoHeight;
 
- const scale = Math.min(1080 / vw, 1920 / vh);
-const dw = vw * scale;
-const dh = vh * scale;
-const dx = (1080 - dw) / 2;
-const dy = (1920 - dh) / 2;
+  const scale = Math.min(1080 / vw, 1920 / vh);
   const dw = vw * scale;
   const dh = vh * scale;
-
   const dx = (1080 - dw) / 2;
   const dy = (1920 - dh) / 2;
 
