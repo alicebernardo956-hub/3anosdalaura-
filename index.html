@@ -81,12 +81,15 @@ function drawCameraFit(targetCtx) {
   const vh = video.videoHeight;
 
   const scale = Math.min(1080 / vw, 1920 / vh);
+
   const dw = vw * scale;
   const dh = vh * scale;
+
   const dx = (1080 - dw) / 2;
   const dy = (1920 - dh) / 2;
 
   targetCtx.save();
+
   targetCtx.fillStyle = '#132b20';
   targetCtx.fillRect(0, 0, 1080, 1920);
 
@@ -96,6 +99,7 @@ function drawCameraFit(targetCtx) {
   }
 
   targetCtx.drawImage(video, dx, dy, dw, dh);
+
   targetCtx.restore();
 }
 function paint() {
