@@ -77,7 +77,11 @@ function drawCameraFit(targetCtx) {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
 
- const scale = Math.max(1080 / vw, 1920 / vh);
+ const scale = Math.min(1080 / vw, 1920 / vh);
+const dw = vw * scale;
+const dh = vh * scale;
+const dx = (1080 - dw) / 2;
+const dy = (1920 - dh) / 2;
   const dw = vw * scale;
   const dh = vh * scale;
 
