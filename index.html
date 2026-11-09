@@ -159,6 +159,7 @@ try {
     video.playsInline = true;
 
     await video.play();
+    statusEl.textContent = 'Câmera: ' + video.videoWidth + ' × ' + video.videoHeight;
 
     cancelAnimationFrame(raf);
     paint();
