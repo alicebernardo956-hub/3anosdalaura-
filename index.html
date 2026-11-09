@@ -110,8 +110,11 @@ function paint() {
 }
 async function openCamera() {
   try {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error('Câmera indisponível. Abra pelo HTTPS.');
+    statusEl.textContent = 'Abrindo câmera...';
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+      throw new Error('HTTPS');
     }
 
     if (stream) {
@@ -119,19 +122,19 @@ async function openCamera() {
       stream = null;
     }
 
-    statusEl.textContent = 'Solicitando acesso à câmera...';
-
+    // Solicita somente a câmera, sem exigir microfone
     stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
+      audio: false,
       video: {
         facingMode: { ideal: facing },
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
+        width: { ideal: 720 },
+        height: { ideal: 1280 }
       }
     });
 
     video.srcObject = stream;
     video.muted = true;
+    video.autoplay = true;
     video.playsInline = true;
 
     await video.play();
@@ -142,10 +145,22 @@ async function openCamera() {
     statusEl.textContent = 'Câmera pronta!';
 
   } catch (error) {
-    console.error(error);
-    statusEl.textContent =
-      'Não foi possível abrir a câmera. Verifique as permissões do navegador.';
+    console.error('Erro da câmera:', error);
+
+    if (error.name === 'NotAllowedError') {
+      statusEl.textContent =
+        'Acesso bloqueado. Libere a câmera nas permissões do navegador.';
+    } else if (error.name === 'NotFoundError') {
+      statusEl.textContent = 'Nenhuma câmera foi encontrada.';
+    } else if (error.name === 'NotReadableError') {
+      statusEl.textContent =
+        'A câmera está sendo utilizada por outro aplicativo.';
+    } else {
+      statusEl.textContent =
+        'Erro ao abrir câmera: ' + error.message;
+    }
   }
+}
 }function setMode(m){mode=m;document.querySelector('#photoMode').classList.toggle('active',m==='photo');document.querySelector('#videoMode').classList.toggle('active',m==='video');capture.style.display=m==='photo'?'block':'none';start.style.display=m==='video'?'block':'none';stop.style.display=m==='video'?'block':'none';download.style.display='none';downloadVideo.style.display='none';}
 capture.onclick=()=>{
   drawCameraFit(ctx);
